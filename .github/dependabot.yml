@@ -8,6 +8,15 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    # React 19 no longer ships the UMD files copied by scripts/build.mjs.
+    # Treat that as an explicit build migration, not an unattended bump.
+    ignore:
+      - dependency-name: react
+        update-types:
+          - version-update:semver-major
+      - dependency-name: react-dom
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
     directory: /
@@ -16,3 +25,7 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    groups:
+      github-actions:
+        patterns:
+          - "*"
