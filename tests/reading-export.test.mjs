@@ -128,7 +128,7 @@ test('empty camps export truthful empty-state text, while corrupt or mismatched 
 
 test('Obsidian frontmatter quotes all user strings and body neutralizes HTML, embeds, code, and markdown', () => {
   const attackBook = {...book, title: '标题"\n---\nmalicious: true\u2028<evil>', author: '!!tag & ref\u0085'};
-  const attackText = content + '\n---\n<script>alert(1)</script>\n![embed](https://bad)\n[[secret]]\n```dataviewjs\napp.delete()\n```';
+  const attackText = content + '\n---\n<script>alert(1)</script><SCRIPT>alert(2)</SCRIPT>\n![embed](https://bad)\n[[secret]]\n```dataviewjs\napp.delete()\n```';
   const current = model.commitNote(makeCamp(), 1, attackText, new Date('2026-09-14T10:00:00+08:00'));
   const output = exports.toObsidianMarkdown(attackBook, current);
   const lines = output.split('\n');
@@ -137,7 +137,7 @@ test('Obsidian frontmatter quotes all user strings and body neutralizes HTML, em
   assert.equal(lines.filter(line => line === '---').length, 2);
   assert.equal(JSON.parse(lines.find(line => line.startsWith('title: ')).slice(7)), attackBook.title + ' · 阅读营笔记');
   assert.equal(JSON.parse(lines.find(line => line.startsWith('author: ')).slice(8)), attackBook.author);
-  assert.doesNotMatch(lines.slice(end + 1).join('\n'), /<script>|<evil>|```|!\[embed\]|\[\[secret\]\]/);
+  assert.doesNotMatch(lines.slice(end + 1).join('\n'), /<script>|<evil>|```|!\[embed\]|\[\[secret\]\]/i);
   assert.match(output, /&lt;script&gt;/);
   assert.match(output, /\\!\\\[embed\\\]/);
   assert.match(output, /\\`\\`\\`dataviewjs/);
